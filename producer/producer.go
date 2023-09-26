@@ -3,6 +3,8 @@ package main
 import (
 	"context"
 	"fmt"
+	"log"
+	"os"
 	"strconv"
 	"time"
 
@@ -21,10 +23,14 @@ func produce(ctx context.Context) {
 	// initialize a counter
 	i := 0
 
+	// added logger
+	l := log.New(os.Stdout, "kafka writer: ", 0)
+
 	// intialize the writer with the broker addresses, and the topic
 	w := kafka.NewWriter(kafka.WriterConfig{
 		Brokers: []string{broker1Address, broker2Address, broker3Address},
 		Topic:   topic,
+		Logger:  l,
 	})
 
 	for {
@@ -49,6 +55,9 @@ func produce(ctx context.Context) {
 }
 
 func consume(ctx context.Context) {
+	// added logger
+	l := log.New(os.Stdout, "kafka reader: ", 0)
+
 	// initialize a new reader with the brokers and topic
 	// the groupID identifies the consumer and prevents
 	// it from receiving duplicate messages
@@ -56,6 +65,7 @@ func consume(ctx context.Context) {
 		Brokers: []string{broker1Address, broker2Address, broker3Address},
 		Topic:   topic,
 		GroupID: "my-topic",
+		Logger:  l,
 	})
 	for {
 		// the `ReadMessage` method blocks until we receive the next event
